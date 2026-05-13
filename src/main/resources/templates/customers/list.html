@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="sv">
+<head th:replace="~{fragments/layout :: head('Kunder')}"><title>Pensionat</title></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<div class="bk-page-bar">
+    <div class="container d-flex justify-content-between align-items-center">
+        <h2>Kunder</h2>
+        <a th:href="@{/customers/new}" class="btn btn-bk-yellow">+ Ny kund</a>
+    </div>
+</div>
+
+<main class="container pb-5">
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+
+    <div th:if="${customers.isEmpty()}" class="bk-card p-4 text-center text-muted">
+        Inga kunder registrerade ännu. <a th:href="@{/customers/new}" class="text-decoration-none" style="color:var(--bk-blue)">Lägg till en kund</a>.
+    </div>
+
+    <div th:unless="${customers.isEmpty()}" class="bk-card">
+        <table class="table bk-table mb-0">
+            <thead>
+                <tr>
+                    <th>Namn</th>
+                    <th>E-post</th>
+                    <th>Telefon</th>
+                    <th>Adress</th>
+                    <th class="text-center">Bokningar</th>
+                    <th class="text-end">Åtgärder</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="c : ${customers}">
+                    <td class="fw-semibold" th:text="${c.fullName}"></td>
+                    <td th:text="${c.email}"></td>
+                    <td th:text="${c.phone}"></td>
+                    <td th:text="${c.address}"></td>
+                    <td class="text-center">
+                        <span class="badge rounded-pill"
+                              th:style="${c.bookings.isEmpty()} ? 'background:#d4edda;color:#155724' : 'background:#cce5ff;color:#004085'"
+                              th:text="${c.bookings.size()}"></span>
+                    </td>
+                    <td class="text-end">
+                        <a th:href="@{/customers/{id}/edit(id=${c.id})}"
+                           class="btn btn-sm btn-bk me-1">Redigera</a>
+                        <form th:action="@{/customers/{id}/delete(id=${c.id})}"
+                              method="post" class="d-inline"
+                              onsubmit="return confirm('Ta bort kunden?');">
+                            <button type="submit" class="btn btn-sm btn-outline-danger"
+                                    th:disabled="${!c.bookings.isEmpty()}"
+                                    th:title="${!c.bookings.isEmpty()} ? 'Kunden har aktiva bokningar'">
+                                Ta bort
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

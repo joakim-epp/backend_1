@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="sv">
+<head th:replace="~{fragments/layout :: head(${pageTitle})}"><title>Pensionat</title></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<div class="bk-page-bar">
+    <div class="container">
+        <h2 th:text="${pageTitle}">Rum</h2>
+    </div>
+</div>
+
+<main class="container pb-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="bk-card">
+                <div class="bk-card-header" th:text="${pageTitle}">Rum</div>
+                <div class="p-4">
+                    <form th:object="${room}"
+                          th:action="@{${room.id == null ? '/rooms' : '/rooms/' + room.id}}"
+                          method="post">
+
+                        <div class="mb-3">
+                            <label class="bk-label">Rumsnummer <span class="text-danger">*</span></label>
+                            <input type="text" th:field="*{roomNumber}" class="form-control bk-input"
+                                   th:classappend="${#fields.hasErrors('roomNumber')} ? 'is-invalid'"
+                                   placeholder="t.ex. 101">
+                            <div class="invalid-feedback" th:errors="*{roomNumber}"></div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="bk-label">Rumstyp <span class="text-danger">*</span></label>
+                            <select th:field="*{type}" class="form-select bk-input"
+                                    th:classappend="${#fields.hasErrors('type')} ? 'is-invalid'"
+                                    onchange="toggleExtraBeds(this.value)">
+                                <option value="">– Välj typ –</option>
+                                <option th:each="t : ${roomTypes}"
+                                        th:value="${t.name()}"
+                                        th:text="${t.displayName}"></option>
+                            </select>
+                            <div class="invalid-feedback" th:errors="*{type}"></div>
+                        </div>
+
+                        <div class="mb-3" id="extraBedsGroup">
+                            <label class="bk-label">Extrasängar <span class="text-muted fw-normal">(0–2, ej tillämpligt för enkelrum)</span></label>
+                            <select th:field="*{extraBeds}" class="form-select bk-input">
+                                <option value="0">0 – inga extrasängar</option>
+                                <option value="1">1 extrasäng</option>
+                                <option value="2">2 extrasängar</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="bk-label">Pris per natt (kr) <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <input type="number" th:field="*{pricePerNight}" class="form-control bk-input"
+                                       th:classappend="${#fields.hasErrors('pricePerNight')} ? 'is-invalid'"
+                                       step="1" min="1" placeholder="800">
+                                <span class="input-group-text">kr</span>
+                                <div class="invalid-feedback" th:errors="*{pricePerNight}"></div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-bk px-4">Spara</button>
+                            <a th:href="@{/rooms}" class="btn btn-outline-secondary">Avbryt</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<div th:replace="~{fragments/layout :: scripts}"></div>
+<script>
+    function toggleExtraBeds(type) {
+        const g = document.getElementById('extraBedsGroup');
+        if (type === 'SINGLE') {
+            g.style.display = 'none';
+            g.querySelector('select').value = '0';
+        } else {
+            g.style.display = '';
+        }
+    }
+    const sel = document.querySelector('[name="type"]');
+    if (sel) { toggleExtraBeds(sel.value); sel.addEventListener('change', e => toggleExtraBeds(e.target.value)); }
+</script>
+</body>
+</html>

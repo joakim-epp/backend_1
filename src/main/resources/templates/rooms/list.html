@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="sv">
+<head th:replace="~{fragments/layout :: head('Rum')}"><title>Pensionat</title></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<div class="bk-page-bar">
+    <div class="container d-flex justify-content-between align-items-center">
+        <h2>Rum</h2>
+        <a th:href="@{/rooms/new}" class="btn btn-bk-yellow">+ Nytt rum</a>
+    </div>
+</div>
+
+<main class="container pb-5">
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+
+    <div th:if="${rooms.isEmpty()}" class="bk-card p-4 text-center text-muted">
+        Inga rum registrerade. <a th:href="@{/rooms/new}" class="text-decoration-none" style="color:var(--bk-blue)">Lägg till ett rum</a>.
+    </div>
+
+    <div th:unless="${rooms.isEmpty()}" class="bk-card">
+        <table class="table bk-table mb-0">
+            <thead>
+                <tr>
+                    <th>Rumsnr.</th>
+                    <th>Typ</th>
+                    <th>Extrasängar</th>
+                    <th>Kapacitet</th>
+                    <th>Pris / natt</th>
+                    <th class="text-end">Åtgärder</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="r : ${rooms}">
+                    <td class="fw-semibold" th:text="${r.roomNumber}"></td>
+                    <td>
+                        <span class="badge"
+                              th:style="${r.type.name() == 'SINGLE'} ? 'background:#ebf3ff;color:var(--bk-dark)' : 'background:#d4edda;color:#155724'"
+                              th:text="${r.type.displayName}"></span>
+                    </td>
+                    <td th:text="${r.type.name() == 'SINGLE' ? '–' : r.extraBeds}"></td>
+                    <td th:text="${r.capacity + ' pers.'}"></td>
+                    <td class="fw-bold" style="color:var(--bk-dark)"
+                        th:text="${#numbers.formatDecimal(r.pricePerNight,1,'COMMA',0,'POINT') + ' kr'}"></td>
+                    <td class="text-end">
+                        <a th:href="@{/rooms/{id}/edit(id=${r.id})}"
+                           class="btn btn-sm btn-bk me-1">Redigera</a>
+                        <form th:action="@{/rooms/{id}/delete(id=${r.id})}"
+                              method="post" class="d-inline"
+                              onsubmit="return confirm('Ta bort rummet?');">
+                            <button type="submit" class="btn btn-sm btn-outline-danger">Ta bort</button>
+                        </form>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

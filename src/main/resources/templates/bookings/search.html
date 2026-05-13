@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="sv">
+<head th:replace="~{fragments/layout :: head('Sök lediga rum')}"><title>Pensionat</title></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<!-- Search hero -->
+<section class="bk-hero">
+    <div class="container">
+        <h1>Sök lediga rum</h1>
+        <p class="mb-4">Ange datum och antal gäster för att se tillgängliga rum</p>
+        <form th:object="${searchForm}" th:action="@{/bookings/search}" method="post">
+            <div class="bk-search-strip">
+                <div>
+                    <label>Incheckning</label>
+                    <input type="date" th:field="*{checkIn}" class="form-control"
+                           th:classappend="${#fields.hasErrors('checkIn')} ? 'is-invalid'"
+                           style="min-width:150px;">
+                </div>
+                <div>
+                    <label>Utcheckning</label>
+                    <input type="date" th:field="*{checkOut}" class="form-control"
+                           th:classappend="${#fields.hasErrors('checkOut')} ? 'is-invalid'"
+                           style="min-width:150px;">
+                </div>
+                <div>
+                    <label>Antal gäster</label>
+                    <select th:field="*{numberOfGuests}" class="form-select" style="min-width:130px;">
+                        <option th:each="n : ${#numbers.sequence(1,4)}"
+                                th:value="${n}"
+                                th:text="${n + (n == 1 ? ' gäst' : ' gäster')}"></option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-bk-search">Sök</button>
+            </div>
+            <!-- inline validation errors -->
+            <div th:if="${#fields.hasErrors('checkIn') or #fields.hasErrors('checkOut') or #fields.hasErrors('numberOfGuests')}"
+                 class="mt-2 text-warning small fw-bold">
+                <span th:if="${#fields.hasErrors('checkIn')}" th:errors="*{checkIn}"></span>
+                <span th:if="${#fields.hasErrors('checkOut')}" th:errors="*{checkOut}"></span>
+                <span th:if="${#fields.hasErrors('numberOfGuests')}" th:errors="*{numberOfGuests}"></span>
+            </div>
+        </form>
+    </div>
+</section>
+
+<main class="container py-4">
+
+    <!-- No results -->
+    <div th:if="${availableRooms != null and availableRooms.isEmpty()}"
+         class="bk-card p-4 text-center text-muted">
+        <h5 class="mt-2">Inga lediga rum hittades</h5>
+        <p class="mb-0">Prova andra datum eller färre gäster.</p>
+    </div>
+
+    <!-- Results -->
+    <div th:if="${availableRooms != null and !availableRooms.isEmpty()}">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="mb-0">
+                <span th:text="${availableRooms.size()}"></span> lediga rum
+                <small class="text-muted fw-normal">
+                    &nbsp;·&nbsp;<span th:text="${checkIn}"></span>
+                    &nbsp;→&nbsp;<span th:text="${checkOut}"></span>
+                    &nbsp;·&nbsp;<span th:text="${numberOfGuests + (numberOfGuests == 1 ? ' gäst' : ' gäster')}"></span>
+                </small>
+            </h5>
+        </div>
+
+        <div class="d-flex flex-column gap-3">
+            <div th:each="r : ${availableRooms}" class="room-result-card">
+
+                <!-- Colour placeholder instead of photo -->
+                <div class="room-result-img"></div>
+
+                <!-- Info -->
+                <div class="flex-grow-1 p-3">
+                    <h5 class="mb-1">
+                        Rum <span th:text="${r.roomNumber}"></span>
+                        <span class="badge ms-1"
+                              th:style="${r.type.name() == 'SINGLE'} ? 'background:#ebf3ff;color:var(--bk-dark)' : 'background:#d4edda;color:#155724'"
+                              th:text="${r.type.displayName}"></span>
+                    </h5>
+                    <p class="text-muted small mb-2" th:text="${r.typeDescription}"></p>
+                    <div class="d-flex gap-3 small text-muted">
+                        <span>Max <strong th:text="${r.capacity}"></strong> pers.</span>
+                        <span style="color:#28a745">Tillgängligt</span>
+                    </div>
+                </div>
+
+                <!-- Price + book -->
+                <div class="room-result-price">
+                    <div class="text-end">
+                        <div class="text-muted small">per natt</div>
+                        <div class="fw-bold fs-4" style="color:var(--bk-dark)"
+                             th:text="${#numbers.formatDecimal(r.pricePerNight,1,'COMMA',0,'POINT') + ' kr'}"></div>
+                    </div>
+                    <a th:href="@{/bookings/new(roomId=${r.id},checkIn=${checkIn},checkOut=${checkOut},guests=${numberOfGuests})}"
+                       class="btn btn-bk-yellow w-100">Boka nu</a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</main>
+
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>
