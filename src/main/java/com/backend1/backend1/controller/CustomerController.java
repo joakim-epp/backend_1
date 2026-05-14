@@ -1,7 +1,9 @@
 package com.backend1.backend1.controller;
 
-import com.backend1.backend1.config.Store;
 import com.backend1.backend1.model.Customer;
+import com.backend1.backend1.repository.BookingRepository;
+import com.backend1.backend1.repository.CustomerRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -9,17 +11,15 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("/customers")
+@RequiredArgsConstructor
 public class CustomerController {
 
-    private final Store store;
-
-    public CustomerController(Store store) {
-        this.store = store;
-    }
+    private final CustomerRepository customerRepository;
+    private final BookingRepository bookingRepository;
 
     @GetMapping
     public String list(Model model) {
-        model.addAttribute("customers", store.findAllCustomers());
+        model.addAttribute("customers", customerRepository.findAll());
         return "customers/list";
     }
 
@@ -32,35 +32,35 @@ public class CustomerController {
 
     @PostMapping
     public String create(@ModelAttribute Customer customer, RedirectAttributes redirectAttributes) {
-        store.saveCustomer(customer);
+        customerRepository.save(customer);
         redirectAttributes.addFlashAttribute("successMessage", "Kunden skapades.");
         return "redirect:/customers";
     }
 
     @GetMapping("/{id}/edit")
     public String showEditForm(@PathVariable Long id, Model model) {
-        model.addAttribute("customer", store.findCustomerById(id));
+        model.addAttribute("customer", customerRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Kund med id " + id + " hittades inte")));
         model.addAttribute("pageTitle", "Redigera kund");
         return "customers/form";
     }
 
     @PostMapping("/{id}")
-    public String update(@PathVariable Long id,
-                         @ModelAttribute Customer customer,
+    public String update(@PathVariable Long id, @ModelAttribute Customer customer,
                          RedirectAttributes redirectAttributes) {
         customer.setId(id);
-        store.saveCustomer(customer);
+        customerRepository.save(customer);
         redirectAttributes.addFlashAttribute("successMessage", "Kundens uppgifter uppdaterades.");
         return "redirect:/customers";
     }
 
     @PostMapping("/{id}/delete")
     public String delete(@PathVariable Long id, RedirectAttributes redirectAttributes) {
-        try {
-            store.deleteCustomer(id);
+        if (bookingRepository.existsByCustomerId(id)) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Kan inte ta bort kund som har aktiva bokningar");
+        } else {
+            customerRepository.deleteById(id);
             redirectAttributes.addFlashAttribute("successMessage", "Kunden togs bort.");
-        } catch (IllegalStateException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
         }
         return "redirect:/customers";
     }

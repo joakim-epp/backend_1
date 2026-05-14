@@ -1,9 +1,14 @@
 package com.backend1.backend1.controller;
 
-import com.backend1.backend1.config.Store;
 import com.backend1.backend1.form.SearchForm;
 import com.backend1.backend1.model.Booking;
+import com.backend1.backend1.model.Customer;
+import com.backend1.backend1.model.Room;
+import com.backend1.backend1.repository.BookingRepository;
+import com.backend1.backend1.repository.CustomerRepository;
+import com.backend1.backend1.repository.RoomRepository;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -15,17 +20,16 @@ import java.time.LocalDate;
 
 @Controller
 @RequestMapping("/bookings")
+@RequiredArgsConstructor
 public class BookingController {
 
-    private final Store store;
-
-    public BookingController(Store store) {
-        this.store = store;
-    }
+    private final BookingRepository bookingRepository;
+    private final CustomerRepository customerRepository;
+    private final RoomRepository roomRepository;
 
     @GetMapping
     public String list(Model model) {
-        model.addAttribute("bookings", store.findAllBookings());
+        model.addAttribute("bookings", bookingRepository.findAll());
         return "bookings/list";
     }
 
@@ -36,8 +40,8 @@ public class BookingController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate checkOut,
             @RequestParam(required = false, defaultValue = "1") int guests,
             Model model) {
-        model.addAttribute("customers", store.findAllCustomers());
-        model.addAttribute("rooms", store.findAllRooms());
+        model.addAttribute("customers", customerRepository.findAll());
+        model.addAttribute("rooms", roomRepository.findAll());
         model.addAttribute("selectedRoomId", roomId);
         model.addAttribute("selectedCheckIn", checkIn);
         model.addAttribute("selectedCheckOut", checkOut);
@@ -56,7 +60,7 @@ public class BookingController {
             RedirectAttributes redirectAttributes,
             Model model) {
         try {
-            store.saveBooking(buildBooking(null, customerId, roomId, checkIn, checkOut, numberOfGuests));
+            bookingRepository.save(buildAndValidate(null, customerId, roomId, checkIn, checkOut, numberOfGuests));
             redirectAttributes.addFlashAttribute("successMessage", "Bokningen skapades.");
             return "redirect:/bookings";
         } catch (IllegalArgumentException e) {
@@ -66,10 +70,11 @@ public class BookingController {
 
     @GetMapping("/{id}/edit")
     public String showEditForm(@PathVariable Long id, Model model) {
-        Booking b = store.findBookingById(id);
+        Booking b = bookingRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Bokning med id " + id + " hittades inte"));
         model.addAttribute("bookingId", id);
-        model.addAttribute("customers", store.findAllCustomers());
-        model.addAttribute("rooms", store.findAllRooms());
+        model.addAttribute("customers", customerRepository.findAll());
+        model.addAttribute("rooms", roomRepository.findAll());
         model.addAttribute("selectedCustomerId", b.getCustomer().getId());
         model.addAttribute("selectedRoomId", b.getRoom().getId());
         model.addAttribute("selectedCheckIn", b.getCheckIn());
@@ -90,7 +95,7 @@ public class BookingController {
             RedirectAttributes redirectAttributes,
             Model model) {
         try {
-            store.saveBooking(buildBooking(id, customerId, roomId, checkIn, checkOut, numberOfGuests));
+            bookingRepository.save(buildAndValidate(id, customerId, roomId, checkIn, checkOut, numberOfGuests));
             redirectAttributes.addFlashAttribute("successMessage", "Bokningen uppdaterades.");
             return "redirect:/bookings";
         } catch (IllegalArgumentException e) {
@@ -100,7 +105,7 @@ public class BookingController {
 
     @PostMapping("/{id}/delete")
     public String delete(@PathVariable Long id, RedirectAttributes redirectAttributes) {
-        store.deleteBooking(id);
+        bookingRepository.deleteById(id);
         redirectAttributes.addFlashAttribute("successMessage", "Bokningen avbokades.");
         return "redirect:/bookings";
     }
@@ -120,23 +125,41 @@ public class BookingController {
             result.rejectValue("checkOut", "invalid", "Utcheckningsdatum måste vara efter incheckningsdatum");
             return "bookings/search";
         }
-        model.addAttribute("availableRooms", store.findAvailableRooms(
-                searchForm.getCheckIn(), searchForm.getCheckOut(), searchForm.getNumberOfGuests()));
+        int guests = searchForm.getNumberOfGuests();
+        var available = roomRepository.findAvailableByDates(searchForm.getCheckIn(), searchForm.getCheckOut())
+                .stream()
+                .filter(r -> r.getCapacity() >= guests)
+                .toList();
+        model.addAttribute("availableRooms", available);
         model.addAttribute("checkIn", searchForm.getCheckIn());
         model.addAttribute("checkOut", searchForm.getCheckOut());
-        model.addAttribute("numberOfGuests", searchForm.getNumberOfGuests());
+        model.addAttribute("numberOfGuests", guests);
         return "bookings/search";
     }
 
-    private Booking buildBooking(Long id, Long customerId, Long roomId,
-                                  LocalDate checkIn, LocalDate checkOut, int guests) {
+    private Booking buildAndValidate(Long id, Long customerId, Long roomId,
+                                      LocalDate checkIn, LocalDate checkOut, int numberOfGuests) {
+        if (!checkOut.isAfter(checkIn)) {
+            throw new IllegalArgumentException("Utcheckningsdatum måste vara efter incheckningsdatum");
+        }
+        Customer customer = customerRepository.findById(customerId)
+                .orElseThrow(() -> new IllegalArgumentException("Kund hittades inte"));
+        Room room = roomRepository.findById(roomId)
+                .orElseThrow(() -> new IllegalArgumentException("Rum hittades inte"));
+        if (room.getCapacity() < numberOfGuests) {
+            throw new IllegalArgumentException("Rummet har plats för " + room.getCapacity()
+                    + " person(er), inte " + numberOfGuests);
+        }
+        if (bookingRepository.countOverlap(roomId, checkIn, checkOut, id) > 0) {
+            throw new IllegalArgumentException("Rummet är redan bokat för de valda datumen");
+        }
         Booking b = new Booking();
         b.setId(id);
-        b.setCustomer(store.findCustomerById(customerId));
-        b.setRoom(store.findRoomById(roomId));
+        b.setCustomer(customer);
+        b.setRoom(room);
         b.setCheckIn(checkIn);
         b.setCheckOut(checkOut);
-        b.setNumberOfGuests(guests);
+        b.setNumberOfGuests(numberOfGuests);
         return b;
     }
 
@@ -144,8 +167,8 @@ public class BookingController {
                                          LocalDate checkIn, LocalDate checkOut, int guests, Model model) {
         model.addAttribute("errorMessage", error);
         model.addAttribute("bookingId", bookingId);
-        model.addAttribute("customers", store.findAllCustomers());
-        model.addAttribute("rooms", store.findAllRooms());
+        model.addAttribute("customers", customerRepository.findAll());
+        model.addAttribute("rooms", roomRepository.findAll());
         model.addAttribute("selectedCustomerId", customerId);
         model.addAttribute("selectedRoomId", roomId);
         model.addAttribute("selectedCheckIn", checkIn);

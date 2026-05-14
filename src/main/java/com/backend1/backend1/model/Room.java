@@ -1,12 +1,25 @@
 package com.backend1.backend1.model;
 
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.math.BigDecimal;
 
+@Getter
+@Setter
+@Entity
+@Table(name = "rooms")
 public class Room {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String roomNumber;
+
+    @Enumerated(EnumType.STRING)
     private RoomType type;
+
     private int extraBeds = 0;
     private BigDecimal pricePerNight;
 
@@ -21,19 +34,4 @@ public class Room {
                      : extraBeds == 1 ? "1 extrasäng" : "2 extrasängar";
         return "Dubbelrum, " + extra + " (max " + getCapacity() + " pers.)";
     }
-
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-
-    public String getRoomNumber() { return roomNumber; }
-    public void setRoomNumber(String roomNumber) { this.roomNumber = roomNumber; }
-
-    public RoomType getType() { return type; }
-    public void setType(RoomType type) { this.type = type; }
-
-    public int getExtraBeds() { return extraBeds; }
-    public void setExtraBeds(int extraBeds) { this.extraBeds = extraBeds; }
-
-    public BigDecimal getPricePerNight() { return pricePerNight; }
-    public void setPricePerNight(BigDecimal pricePerNight) { this.pricePerNight = pricePerNight; }
 }
