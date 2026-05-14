@@ -1,6 +1,6 @@
 package com.backend1.backend1.controller;
 
-import com.backend1.backend1.dto.CustomerDTO;
+import com.backend1.backend1.form.CustomerForm;
 import com.backend1.backend1.service.CustomerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -23,13 +23,13 @@ public class CustomerController {
 
     @GetMapping("/new")
     public String showCreateForm(Model model) {
-        model.addAttribute("customer", new CustomerDTO());
+        model.addAttribute("customer", new CustomerForm());
         model.addAttribute("pageTitle", "Ny kund");
         return "customers/form";
     }
 
     @PostMapping
-    public String create(@ModelAttribute CustomerDTO customer, RedirectAttributes redirectAttributes) {
+    public String create(@ModelAttribute CustomerForm customer, RedirectAttributes redirectAttributes) {
         customerService.save(customer);
         redirectAttributes.addFlashAttribute("successMessage", "Kunden skapades.");
         return "redirect:/customers";
@@ -43,7 +43,7 @@ public class CustomerController {
     }
 
     @PostMapping("/{id}")
-    public String update(@PathVariable Long id, @ModelAttribute CustomerDTO customer,
+    public String update(@PathVariable Long id, @ModelAttribute CustomerForm customer,
                          RedirectAttributes redirectAttributes) {
         customer.setId(id);
         customerService.save(customer);

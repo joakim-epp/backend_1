@@ -34,12 +34,13 @@
                 </tr>
             </thead>
             <tbody>
+            <!--/*@thymesVar id="b" type="com.backend1.backend1.form.BookingForm"*/-->
                 <tr th:each="b : ${bookings}">
                     <td class="text-muted small" th:text="${b.id}"></td>
-                    <td class="fw-semibold" th:text="${b.customer.fullName}"></td>
+                    <td class="fw-semibold" th:text="${b.customerFullName}"></td>
                     <td>
-                        <span th:text="${b.room.roomNumber}"></span>
-                        <small class="text-muted" th:text="'(' + b.room.type.displayName + ')'"></small>
+                        <span th:text="${b.roomNumber}"></span>
+                        <small class="text-muted" th:text="'(' + b.roomTypeDisplayName + ')'"></small>
                     </td>
                     <td th:text="${#temporals.format(b.checkIn,'yyyy-MM-dd')}"></td>
                     <td th:text="${#temporals.format(b.checkOut,'yyyy-MM-dd')}"></td>

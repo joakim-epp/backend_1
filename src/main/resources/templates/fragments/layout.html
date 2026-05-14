@@ -1,187 +1,12 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="sv">
 
 <head th:fragment="head(pageTitle)">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title th:text="${pageTitle} + ' – Pensionat'">Pensionat</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        :root {
-            --bk-dark:   #003580;
-            --bk-blue:   #0071c2;
-            --bk-yellow: #febb02;
-            --bk-bg:     #f2f6f8;
-            --bk-border: #cdcdcd;
-        }
-
-        body {
-            background: var(--bk-bg);
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            color: #262626;
-        }
-
-        /* ── Navbar ── */
-        .bk-nav {
-            background: var(--bk-dark);
-            padding: 10px 0;
-        }
-        .bk-nav a {
-            color: rgba(255,255,255,.85);
-            text-decoration: none;
-            font-size: .9rem;
-            padding: 6px 10px;
-            border-radius: 4px;
-            transition: background .15s;
-        }
-        .bk-nav a:hover { background: rgba(255,255,255,.15); color: #fff; }
-        .bk-nav .brand {
-            font-size: 1.5rem;
-            font-weight: 800;
-            color: #fff;
-            letter-spacing: -.5px;
-        }
-
-        /* ── Hero ── */
-        .bk-hero {
-            background: var(--bk-dark);
-            padding: 36px 0 48px;
-            color: #fff;
-        }
-        .bk-hero h1 { font-size: 2rem; font-weight: 700; margin-bottom: 6px; }
-        .bk-hero p  { font-size: 1.05rem; opacity: .85; margin-bottom: 0; }
-
-        /* ── Search strip ── */
-        .bk-search-strip {
-            background: var(--bk-yellow);
-            border-radius: 6px;
-            padding: 10px;
-            display: flex;
-            gap: 8px;
-            align-items: flex-end;
-            flex-wrap: wrap;
-        }
-        .bk-search-strip .form-control,
-        .bk-search-strip .form-select {
-            border: 2px solid #fff;
-            border-radius: 4px;
-            font-size: .9rem;
-            height: 42px;
-        }
-        .bk-search-strip label { font-size: .78rem; font-weight: 700; color: #262626; margin-bottom: 3px; }
-        .btn-bk-search {
-            background: var(--bk-blue);
-            color: #fff;
-            font-weight: 700;
-            border: none;
-            height: 42px;
-            padding: 0 22px;
-            border-radius: 4px;
-            white-space: nowrap;
-        }
-        .btn-bk-search:hover { background: #005fa3; color: #fff; }
-
-        /* ── Buttons ── */
-        .btn-bk {
-            background: var(--bk-blue);
-            color: #fff !important;
-            border: none;
-            border-radius: 4px;
-            font-weight: 600;
-        }
-        .btn-bk:hover { background: #005fa3; }
-        .btn-bk-yellow {
-            background: var(--bk-yellow);
-            color: #000 !important;
-            border: none;
-            font-weight: 700;
-            border-radius: 4px;
-        }
-        .btn-bk-yellow:hover { background: #f5af00; }
-
-        /* ── Cards ── */
-        .bk-card {
-            background: #fff;
-            border: 1px solid var(--bk-border);
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,.07);
-        }
-        .bk-card-header {
-            background: var(--bk-dark);
-            color: #fff;
-            padding: 12px 18px;
-            border-radius: 8px 8px 0 0;
-            font-weight: 700;
-        }
-
-        /* ── Tables ── */
-        .bk-table thead th {
-            background: var(--bk-dark);
-            color: #fff;
-            font-weight: 600;
-            border: none;
-            font-size: .88rem;
-        }
-        .bk-table tbody tr:hover { background: #ebf3ff; }
-        .bk-table td { vertical-align: middle; font-size: .9rem; }
-
-        /* ── Page title bar ── */
-        .bk-page-bar {
-            background: var(--bk-dark);
-            color: #fff;
-            padding: 14px 0;
-            margin-bottom: 24px;
-        }
-        .bk-page-bar h2 { font-size: 1.4rem; font-weight: 700; margin: 0; }
-
-        /* ── Room result card ── */
-        .room-result-card {
-            background: #fff;
-            border: 1px solid var(--bk-border);
-            border-radius: 8px;
-            display: flex;
-            overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0,0,0,.07);
-        }
-        .room-result-img {
-            min-width: 180px;
-            max-width: 180px;
-            background: linear-gradient(135deg, var(--bk-dark) 0%, var(--bk-blue) 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: rgba(255,255,255,.6);
-            font-size: 2.5rem;
-        }
-        .room-result-price {
-            min-width: 175px;
-            border-left: 1px solid var(--bk-border);
-            padding: 16px;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            justify-content: space-between;
-        }
-
-        /* ── Stat cards ── */
-        .stat-card {
-            background: #fff;
-            border: 1px solid var(--bk-border);
-            border-radius: 8px;
-            padding: 24px;
-            text-align: center;
-        }
-        .stat-card .stat-num { font-size: 2.8rem; font-weight: 800; color: var(--bk-blue); }
-
-        /* ── Alerts ── */
-        .bk-alert-success { background: #d4edda; border-left: 4px solid #28a745; border-radius: 4px; padding: 12px 16px; }
-        .bk-alert-danger  { background: #f8d7da; border-left: 4px solid #dc3545; border-radius: 4px; padding: 12px 16px; }
-
-        /* ── Form ── */
-        .bk-label { font-size: .85rem; font-weight: 700; color: #333; margin-bottom: 4px; }
-        .bk-input { border: 1px solid var(--bk-border); border-radius: 4px; font-size: .93rem; }
-        .bk-input:focus { border-color: var(--bk-blue); box-shadow: 0 0 0 2px rgba(0,113,194,.2); }
-    </style>
+    <link th:href="@{/css/style.css}" rel="stylesheet">
 </head>
 
 <nav th:fragment="navbar" class="bk-nav">
@@ -197,10 +22,12 @@
 </nav>
 
 <div th:fragment="alerts" class="mb-3">
+    <!--/*@thymesVar id="successMessage" type="java.lang.String"*/-->
     <div th:if="${successMessage}" class="bk-alert-success d-flex justify-content-between align-items-center">
         <span th:text="${successMessage}"></span>
         <button class="btn-close btn-sm" onclick="this.parentElement.remove()"></button>
     </div>
+    <!--/*@thymesVar id="errorMessage" type="java.lang.String"*/-->
     <div th:if="${errorMessage}" class="bk-alert-danger d-flex justify-content-between align-items-center">
         <span th:text="${errorMessage}"></span>
         <button class="btn-close btn-sm" onclick="this.parentElement.remove()"></button>

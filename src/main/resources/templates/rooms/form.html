@@ -22,40 +22,48 @@
 
                         <div class="mb-3">
                             <label class="bk-label">Rumsnummer <span class="text-danger">*</span></label>
-                            <input type="text" th:field="*{roomNumber}" class="form-control bk-input"
-                                   th:classappend="${#fields.hasErrors('roomNumber')} ? 'is-invalid'"
-                                   placeholder="t.ex. 101">
+                            <label>
+                                <input type="text" th:field="*{roomNumber}" class="form-control bk-input"
+                                       th:classappend="${#fields.hasErrors('roomNumber')} ? 'is-invalid'"
+                                       placeholder="t.ex. 101">
+                            </label>
                             <div class="invalid-feedback" th:errors="*{roomNumber}"></div>
                         </div>
 
                         <div class="mb-3">
                             <label class="bk-label">Rumstyp <span class="text-danger">*</span></label>
-                            <select th:field="*{type}" class="form-select bk-input"
-                                    th:classappend="${#fields.hasErrors('type')} ? 'is-invalid'"
-                                    onchange="toggleExtraBeds(this.value)">
-                                <option value="">– Välj typ –</option>
-                                <option th:each="t : ${roomTypes}"
-                                        th:value="${t.name()}"
-                                        th:text="${t.displayName}"></option>
-                            </select>
+                            <label>
+                                <select th:field="*{type}" class="form-select bk-input"
+                                        th:classappend="${#fields.hasErrors('type')} ? 'is-invalid'"
+                                        onchange="toggleExtraBeds(this.value)">
+                                    <option value="">– Välj typ –</option>
+                                    <option th:each="t : ${roomTypes}"
+                                            th:value="${t.name()}"
+                                            th:text="${t.displayName}"></option>
+                                </select>
+                            </label>
                             <div class="invalid-feedback" th:errors="*{type}"></div>
                         </div>
 
                         <div class="mb-3" id="extraBedsGroup">
                             <label class="bk-label">Extrasängar <span class="text-muted fw-normal">(0–2, ej tillämpligt för enkelrum)</span></label>
-                            <select th:field="*{extraBeds}" class="form-select bk-input">
-                                <option value="0">0 – inga extrasängar</option>
-                                <option value="1">1 extrasäng</option>
-                                <option value="2">2 extrasängar</option>
-                            </select>
+                            <label>
+                                <select th:field="*{extraBeds}" class="form-select bk-input">
+                                    <option value="0">0 – inga extrasängar</option>
+                                    <option value="1">1 extrasäng</option>
+                                    <option value="2">2 extrasängar</option>
+                                </select>
+                            </label>
                         </div>
 
                         <div class="mb-4">
                             <label class="bk-label">Pris per natt (kr) <span class="text-danger">*</span></label>
                             <div class="input-group">
-                                <input type="number" th:field="*{pricePerNight}" class="form-control bk-input"
-                                       th:classappend="${#fields.hasErrors('pricePerNight')} ? 'is-invalid'"
-                                       step="1" min="1" placeholder="800">
+                                <label>
+                                    <input type="number" th:field="*{pricePerNight}" class="form-control bk-input"
+                                           th:classappend="${#fields.hasErrors('pricePerNight')} ? 'is-invalid'"
+                                           step="1" min="1" placeholder="800">
+                                </label>
                                 <span class="input-group-text">kr</span>
                                 <div class="invalid-feedback" th:errors="*{pricePerNight}"></div>
                             </div>

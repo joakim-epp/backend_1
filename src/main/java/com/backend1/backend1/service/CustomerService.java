@@ -1,6 +1,7 @@
 package com.backend1.backend1.service;
 
 import com.backend1.backend1.dto.CustomerDTO;
+import com.backend1.backend1.form.CustomerForm;
 import com.backend1.backend1.model.Customer;
 import com.backend1.backend1.repository.BookingRepository;
 import com.backend1.backend1.repository.CustomerRepository;
@@ -16,18 +17,19 @@ public class CustomerService {
     private final CustomerRepository customerRepository;
     private final BookingRepository bookingRepository;
 
-    public List<CustomerDTO> findAll() {
-        return customerRepository.findAll().stream().map(this::toDTO).toList();
+    public List<CustomerForm> findAll() {
+        return customerRepository.findAll().stream().map(this::toDTO).map(this::toForm).toList();
     }
 
-    public CustomerDTO findById(Long id) {
+    public CustomerForm findById(Long id) {
         return customerRepository.findById(id)
                 .map(this::toDTO)
+                .map(this::toForm)
                 .orElseThrow(() -> new IllegalArgumentException("Kund med id " + id + " hittades inte"));
     }
 
-    public void save(CustomerDTO dto) {
-        customerRepository.save(toEntity(dto));
+    public void save(CustomerForm form) {
+        customerRepository.save(toEntity(form));
     }
 
     public void delete(Long id) {
@@ -53,14 +55,26 @@ public class CustomerService {
         return dto;
     }
 
-    private Customer toEntity(CustomerDTO dto) {
+    private CustomerForm toForm(CustomerDTO dto) {
+        CustomerForm form = new CustomerForm();
+        form.setId(dto.getId());
+        form.setFirstName(dto.getFirstName());
+        form.setLastName(dto.getLastName());
+        form.setEmail(dto.getEmail());
+        form.setPhone(dto.getPhone());
+        form.setAddress(dto.getAddress());
+        form.setBookingCount(dto.getBookingCount());
+        return form;
+    }
+
+    private Customer toEntity(CustomerForm form) {
         Customer c = new Customer();
-        c.setId(dto.getId());
-        c.setFirstName(dto.getFirstName());
-        c.setLastName(dto.getLastName());
-        c.setEmail(dto.getEmail());
-        c.setPhone(dto.getPhone());
-        c.setAddress(dto.getAddress());
+        c.setId(form.getId());
+        c.setFirstName(form.getFirstName());
+        c.setLastName(form.getLastName());
+        c.setEmail(form.getEmail());
+        c.setPhone(form.getPhone());
+        c.setAddress(form.getAddress());
         return c;
     }
 }

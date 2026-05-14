@@ -1,13 +1,9 @@
 package com.backend1.backend1.controller;
 
 import com.backend1.backend1.form.SearchForm;
-import com.backend1.backend1.model.Booking;
-import com.backend1.backend1.model.Customer;
-import com.backend1.backend1.model.Room;
-import com.backend1.backend1.repository.BookingRepository;
-import com.backend1.backend1.repository.CustomerRepository;
-import com.backend1.backend1.repository.RoomRepository;
+import com.backend1.backend1.service.BookingService;
 import com.backend1.backend1.service.CustomerService;
+import com.backend1.backend1.service.RoomService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -24,14 +20,13 @@ import java.time.LocalDate;
 @RequiredArgsConstructor
 public class BookingController {
 
-    private final BookingRepository bookingRepository;
-    private final CustomerRepository customerRepository;
-    private final RoomRepository roomRepository;
+    private final BookingService bookingService;
     private final CustomerService customerService;
+    private final RoomService roomService;
 
     @GetMapping
     public String list(Model model) {
-        model.addAttribute("bookings", bookingRepository.findAll());
+        model.addAttribute("bookings", bookingService.findAll());
         return "bookings/list";
     }
 
@@ -43,7 +38,7 @@ public class BookingController {
             @RequestParam(required = false, defaultValue = "1") int guests,
             Model model) {
         model.addAttribute("customers", customerService.findAll());
-        model.addAttribute("rooms", roomRepository.findAll());
+        model.addAttribute("rooms", roomService.findAll());
         model.addAttribute("selectedRoomId", roomId);
         model.addAttribute("selectedCheckIn", checkIn);
         model.addAttribute("selectedCheckOut", checkOut);
@@ -62,7 +57,7 @@ public class BookingController {
             RedirectAttributes redirectAttributes,
             Model model) {
         try {
-            bookingRepository.save(buildAndValidate(null, customerId, roomId, checkIn, checkOut, numberOfGuests));
+            bookingService.save(null, customerId, roomId, checkIn, checkOut, numberOfGuests);
             redirectAttributes.addFlashAttribute("successMessage", "Bokningen skapades.");
             return "redirect:/bookings";
         } catch (IllegalArgumentException e) {
@@ -72,13 +67,12 @@ public class BookingController {
 
     @GetMapping("/{id}/edit")
     public String showEditForm(@PathVariable Long id, Model model) {
-        Booking b = bookingRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Bokning med id " + id + " hittades inte"));
+        var b = bookingService.findById(id);
         model.addAttribute("bookingId", id);
         model.addAttribute("customers", customerService.findAll());
-        model.addAttribute("rooms", roomRepository.findAll());
-        model.addAttribute("selectedCustomerId", b.getCustomer().getId());
-        model.addAttribute("selectedRoomId", b.getRoom().getId());
+        model.addAttribute("rooms", roomService.findAll());
+        model.addAttribute("selectedCustomerId", b.getCustomerId());
+        model.addAttribute("selectedRoomId", b.getRoomId());
         model.addAttribute("selectedCheckIn", b.getCheckIn());
         model.addAttribute("selectedCheckOut", b.getCheckOut());
         model.addAttribute("selectedGuests", b.getNumberOfGuests());
@@ -97,7 +91,7 @@ public class BookingController {
             RedirectAttributes redirectAttributes,
             Model model) {
         try {
-            bookingRepository.save(buildAndValidate(id, customerId, roomId, checkIn, checkOut, numberOfGuests));
+            bookingService.save(id, customerId, roomId, checkIn, checkOut, numberOfGuests);
             redirectAttributes.addFlashAttribute("successMessage", "Bokningen uppdaterades.");
             return "redirect:/bookings";
         } catch (IllegalArgumentException e) {
@@ -107,7 +101,7 @@ public class BookingController {
 
     @PostMapping("/{id}/delete")
     public String delete(@PathVariable Long id, RedirectAttributes redirectAttributes) {
-        bookingRepository.deleteById(id);
+        bookingService.delete(id);
         redirectAttributes.addFlashAttribute("successMessage", "Bokningen avbokades.");
         return "redirect:/bookings";
     }
@@ -128,7 +122,7 @@ public class BookingController {
             return "bookings/search";
         }
         int guests = searchForm.getNumberOfGuests();
-        var available = roomRepository.findAvailableByDates(searchForm.getCheckIn(), searchForm.getCheckOut())
+        var available = roomService.findAvailableByDates(searchForm.getCheckIn(), searchForm.getCheckOut())
                 .stream()
                 .filter(r -> r.getCapacity() >= guests)
                 .toList();
@@ -139,38 +133,12 @@ public class BookingController {
         return "bookings/search";
     }
 
-    private Booking buildAndValidate(Long id, Long customerId, Long roomId,
-                                      LocalDate checkIn, LocalDate checkOut, int numberOfGuests) {
-        if (!checkOut.isAfter(checkIn)) {
-            throw new IllegalArgumentException("Utcheckningsdatum måste vara efter incheckningsdatum");
-        }
-        Customer customer = customerRepository.findById(customerId)
-                .orElseThrow(() -> new IllegalArgumentException("Kund hittades inte"));
-        Room room = roomRepository.findById(roomId)
-                .orElseThrow(() -> new IllegalArgumentException("Rum hittades inte"));
-        if (room.getCapacity() < numberOfGuests) {
-            throw new IllegalArgumentException("Rummet har plats för " + room.getCapacity()
-                    + " person(er), inte " + numberOfGuests);
-        }
-        if (bookingRepository.countOverlap(roomId, checkIn, checkOut, id) > 0) {
-            throw new IllegalArgumentException("Rummet är redan bokat för de valda datumen");
-        }
-        Booking b = new Booking();
-        b.setId(id);
-        b.setCustomer(customer);
-        b.setRoom(room);
-        b.setCheckIn(checkIn);
-        b.setCheckOut(checkOut);
-        b.setNumberOfGuests(numberOfGuests);
-        return b;
-    }
-
     private String bookingFormWithError(String error, Long bookingId, Long customerId, Long roomId,
-                                         LocalDate checkIn, LocalDate checkOut, int guests, Model model) {
+                                        LocalDate checkIn, LocalDate checkOut, int guests, Model model) {
         model.addAttribute("errorMessage", error);
         model.addAttribute("bookingId", bookingId);
         model.addAttribute("customers", customerService.findAll());
-        model.addAttribute("rooms", roomRepository.findAll());
+        model.addAttribute("rooms", roomService.findAll());
         model.addAttribute("selectedCustomerId", customerId);
         model.addAttribute("selectedRoomId", roomId);
         model.addAttribute("selectedCheckIn", checkIn);

@@ -13,23 +13,29 @@
             <div class="bk-search-strip">
                 <div>
                     <label>Incheckning</label>
-                    <input type="date" th:field="*{checkIn}" class="form-control"
-                           th:classappend="${#fields.hasErrors('checkIn')} ? 'is-invalid'"
-                           style="min-width:150px;">
+                    <label>
+                        <input type="date" th:field="*{checkIn}" class="form-control"
+                               th:classappend="${#fields.hasErrors('checkIn')} ? 'is-invalid'"
+                               style="min-width:150px;">
+                    </label>
                 </div>
                 <div>
                     <label>Utcheckning</label>
-                    <input type="date" th:field="*{checkOut}" class="form-control"
-                           th:classappend="${#fields.hasErrors('checkOut')} ? 'is-invalid'"
-                           style="min-width:150px;">
+                    <label>
+                        <input type="date" th:field="*{checkOut}" class="form-control"
+                               th:classappend="${#fields.hasErrors('checkOut')} ? 'is-invalid'"
+                               style="min-width:150px;">
+                    </label>
                 </div>
                 <div>
                     <label>Antal gäster</label>
-                    <select th:field="*{numberOfGuests}" class="form-select" style="min-width:130px;">
-                        <option th:each="n : ${#numbers.sequence(1,4)}"
-                                th:value="${n}"
-                                th:text="${n + (n == 1 ? ' gäst' : ' gäster')}"></option>
-                    </select>
+                    <label>
+                        <select th:field="*{numberOfGuests}" class="form-select" style="min-width:130px;">
+                            <option th:each="n : ${#numbers.sequence(1,4)}"
+                                    th:value="${n}"
+                                    th:text="${n + (n == 1 ? ' gäst' : ' gäster')}"></option>
+                        </select>
+                    </label>
                 </div>
                 <button type="submit" class="btn-bk-search">Sök</button>
             </div>

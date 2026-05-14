@@ -23,36 +23,46 @@
                         <div class="row g-3 mb-3">
                             <div class="col-6">
                                 <label class="bk-label">Förnamn <span class="text-danger">*</span></label>
-                                <input type="text" th:field="*{firstName}" class="form-control bk-input"
-                                       th:classappend="${#fields.hasErrors('firstName')} ? 'is-invalid'"
-                                       placeholder="Anna">
+                                <label>
+                                    <input type="text" th:field="*{firstName}" class="form-control bk-input"
+                                           th:classappend="${#fields.hasErrors('firstName')} ? 'is-invalid'"
+                                           placeholder="Anna">
+                                </label>
                                 <div class="invalid-feedback" th:errors="*{firstName}"></div>
                             </div>
                             <div class="col-6">
                                 <label class="bk-label">Efternamn <span class="text-danger">*</span></label>
-                                <input type="text" th:field="*{lastName}" class="form-control bk-input"
-                                       th:classappend="${#fields.hasErrors('lastName')} ? 'is-invalid'"
-                                       placeholder="Svensson">
+                                <label>
+                                    <input type="text" th:field="*{lastName}" class="form-control bk-input"
+                                           th:classappend="${#fields.hasErrors('lastName')} ? 'is-invalid'"
+                                           placeholder="Svensson">
+                                </label>
                                 <div class="invalid-feedback" th:errors="*{lastName}"></div>
                             </div>
                         </div>
 
                         <div class="mb-3">
                             <label class="bk-label">E-post</label>
-                            <input type="email" th:field="*{email}" class="form-control bk-input"
-                                   placeholder="anna@exempel.se">
+                            <label>
+                                <input type="email" th:field="*{email}" class="form-control bk-input"
+                                       placeholder="anna@exempel.se">
+                            </label>
                         </div>
 
                         <div class="mb-3">
                             <label class="bk-label">Telefon</label>
-                            <input type="text" th:field="*{phone}" class="form-control bk-input"
-                                   placeholder="070-123 45 67">
+                            <label>
+                                <input type="text" th:field="*{phone}" class="form-control bk-input"
+                                       placeholder="070-123 45 67">
+                            </label>
                         </div>
 
                         <div class="mb-4">
                             <label class="bk-label">Adress</label>
-                            <input type="text" th:field="*{address}" class="form-control bk-input"
-                                   placeholder="Storgatan 1, Stockholm">
+                            <label>
+                                <input type="text" th:field="*{address}" class="form-control bk-input"
+                                       placeholder="Storgatan 1, Stockholm">
+                            </label>
                         </div>
 
                         <div class="d-flex gap-2">
