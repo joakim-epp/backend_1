@@ -7,6 +7,7 @@ import com.backend1.backend1.model.Room;
 import com.backend1.backend1.repository.BookingRepository;
 import com.backend1.backend1.repository.CustomerRepository;
 import com.backend1.backend1.repository.RoomRepository;
+import com.backend1.backend1.service.CustomerService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -26,6 +27,7 @@ public class BookingController {
     private final BookingRepository bookingRepository;
     private final CustomerRepository customerRepository;
     private final RoomRepository roomRepository;
+    private final CustomerService customerService;
 
     @GetMapping
     public String list(Model model) {
@@ -40,7 +42,7 @@ public class BookingController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate checkOut,
             @RequestParam(required = false, defaultValue = "1") int guests,
             Model model) {
-        model.addAttribute("customers", customerRepository.findAll());
+        model.addAttribute("customers", customerService.findAll());
         model.addAttribute("rooms", roomRepository.findAll());
         model.addAttribute("selectedRoomId", roomId);
         model.addAttribute("selectedCheckIn", checkIn);
@@ -73,7 +75,7 @@ public class BookingController {
         Booking b = bookingRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Bokning med id " + id + " hittades inte"));
         model.addAttribute("bookingId", id);
-        model.addAttribute("customers", customerRepository.findAll());
+        model.addAttribute("customers", customerService.findAll());
         model.addAttribute("rooms", roomRepository.findAll());
         model.addAttribute("selectedCustomerId", b.getCustomer().getId());
         model.addAttribute("selectedRoomId", b.getRoom().getId());
@@ -167,7 +169,7 @@ public class BookingController {
                                          LocalDate checkIn, LocalDate checkOut, int guests, Model model) {
         model.addAttribute("errorMessage", error);
         model.addAttribute("bookingId", bookingId);
-        model.addAttribute("customers", customerRepository.findAll());
+        model.addAttribute("customers", customerService.findAll());
         model.addAttribute("rooms", roomRepository.findAll());
         model.addAttribute("selectedCustomerId", customerId);
         model.addAttribute("selectedRoomId", roomId);

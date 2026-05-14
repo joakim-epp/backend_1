@@ -38,8 +38,8 @@
                     <td th:text="${c.address}"></td>
                     <td class="text-center">
                         <span class="badge rounded-pill"
-                              th:style="${c.bookings.isEmpty()} ? 'background:#d4edda;color:#155724' : 'background:#cce5ff;color:#004085'"
-                              th:text="${c.bookings.size()}"></span>
+                              th:style="${c.bookingCount == 0} ? 'background:#d4edda;color:#155724' : 'background:#cce5ff;color:#004085'"
+                              th:text="${c.bookingCount}"></span>
                     </td>
                     <td class="text-end">
                         <a th:href="@{/customers/{id}/edit(id=${c.id})}"
@@ -48,8 +48,8 @@
                               method="post" class="d-inline"
                               onsubmit="return confirm('Ta bort kunden?');">
                             <button type="submit" class="btn btn-sm btn-outline-danger"
-                                    th:disabled="${!c.bookings.isEmpty()}"
-                                    th:title="${!c.bookings.isEmpty()} ? 'Kunden har aktiva bokningar'">
+                                    th:disabled="${c.bookingCount > 0}"
+                                    th:title="${c.bookingCount > 0} ? 'Kunden har aktiva bokningar'">
                                 Ta bort
                             </button>
                         </form>
