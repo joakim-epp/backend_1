@@ -32,7 +32,6 @@ public class RoomController {
 
     @PostMapping
     public String create(@ModelAttribute RoomForm room, RedirectAttributes redirectAttributes) {
-        if (room.getType() == RoomType.SINGLE) room.setExtraBeds(0);
         roomService.save(room);
         redirectAttributes.addFlashAttribute("successMessage", "Rummet skapades.");
         return "redirect:/rooms";
@@ -50,7 +49,6 @@ public class RoomController {
     public String update(@PathVariable Long id, @ModelAttribute RoomForm room,
                          RedirectAttributes redirectAttributes) {
         room.setId(id);
-        if (room.getType() == RoomType.SINGLE) room.setExtraBeds(0);
         roomService.save(room);
         redirectAttributes.addFlashAttribute("successMessage", "Rummet uppdaterades.");
         return "redirect:/rooms";
@@ -59,6 +57,7 @@ public class RoomController {
     @PostMapping("/{id}/delete")
     public String delete(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         roomService.delete(id);
+
         redirectAttributes.addFlashAttribute("successMessage", "Rummet togs bort.");
         return "redirect:/rooms";
     }
