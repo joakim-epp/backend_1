@@ -1,6 +1,5 @@
 package com.backend1.backend1.service;
 
-import com.backend1.backend1.dto.CustomerDTO;
 import com.backend1.backend1.form.CustomerForm;
 import com.backend1.backend1.model.Customer;
 import com.backend1.backend1.repository.BookingRepository;
@@ -18,23 +17,35 @@ public class CustomerService {
     private final BookingRepository bookingRepository;
 
     public List<CustomerForm> findAll() {
-        return customerRepository.findAll().stream().map(this::toDTO).map(this::toForm).toList();
+        return customerRepository.findAll()
+                .stream()
+                .map(this::toForm)
+                .toList();
     }
 
     public CustomerForm findById(Long id) {
-        return customerRepository.findById(id)
-                .map(this::toDTO)
-                .map(this::toForm)
-                .orElseThrow(() -> new IllegalArgumentException("Kund med id " + id + " hittades inte"));
+        Customer c = customerRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Kund saknas: " + id));
+        return toForm(c);
     }
 
     public void save(CustomerForm form) {
-        customerRepository.save(toEntity(form));
+        Customer c = form.getId() != null
+                ? customerRepository.findById(form.getId())
+                .orElseThrow(() -> new RuntimeException("Kund saknas"))
+                : new Customer();
+
+        c.setFirstName(form.getFirstName());
+        c.setLastName(form.getLastName());
+        c.setEmail(form.getEmail());
+        c.setPhone(form.getPhone());
+        c.setAddress(form.getAddress());
+        customerRepository.save(c);
     }
 
     public void delete(Long id) {
         if (bookingRepository.existsByCustomerId(id)) {
-            throw new IllegalStateException("Kan inte ta bort kund som har aktiva bokningar");
+            throw new IllegalStateException("Kan inte ta bort kund med aktiva bokningar.");
         }
         customerRepository.deleteById(id);
     }
@@ -43,38 +54,15 @@ public class CustomerService {
         return customerRepository.count();
     }
 
-    private CustomerDTO toDTO(Customer c) {
-        CustomerDTO dto = new CustomerDTO();
-        dto.setId(c.getId());
-        dto.setFirstName(c.getFirstName());
-        dto.setLastName(c.getLastName());
-        dto.setEmail(c.getEmail());
-        dto.setPhone(c.getPhone());
-        dto.setAddress(c.getAddress());
-        dto.setBookingCount(bookingRepository.countByCustomerId(c.getId()));
-        return dto;
-    }
-
-    private CustomerForm toForm(CustomerDTO dto) {
-        CustomerForm form = new CustomerForm();
-        form.setId(dto.getId());
-        form.setFirstName(dto.getFirstName());
-        form.setLastName(dto.getLastName());
-        form.setEmail(dto.getEmail());
-        form.setPhone(dto.getPhone());
-        form.setAddress(dto.getAddress());
-        form.setBookingCount(dto.getBookingCount());
-        return form;
-    }
-
-    private Customer toEntity(CustomerForm form) {
-        Customer c = new Customer();
-        c.setId(form.getId());
-        c.setFirstName(form.getFirstName());
-        c.setLastName(form.getLastName());
-        c.setEmail(form.getEmail());
-        c.setPhone(form.getPhone());
-        c.setAddress(form.getAddress());
-        return c;
+    private CustomerForm toForm(Customer c) {
+        CustomerForm f = new CustomerForm();
+        f.setId(c.getId());
+        f.setFirstName(c.getFirstName());
+        f.setLastName(c.getLastName());
+        f.setEmail(c.getEmail());
+        f.setPhone(c.getPhone());
+        f.setAddress(c.getAddress());
+        f.setBookingCount(c.getBookings().size());
+        return f;
     }
 }
