@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="sv">
+<html lang="sv" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/layout :: head(${pageTitle})}"><title>Pensionat</title></head>
 <body>
 <nav th:replace="~{fragments/layout :: navbar}"></nav>
@@ -17,20 +17,20 @@
                 <div class="bk-card-header" th:text="${pageTitle}">Bokning</div>
                 <div class="p-4">
 
-                    <div th:if="${errorMessage}" class="bk-alert-danger mb-3" th:text="${errorMessage}"></div>
+                    <div class="bk-alert-danger mb-3" th:if="${errorMessage}" th:text="${errorMessage}"></div>
 
-                    <form th:action="@{${bookingId == null ? '/bookings' : '/bookings/' + bookingId}}"
-                          method="post">
+                    <form method="post"
+                          th:action="@{${bookingId == null ? '/bookings' : '/bookings/' + bookingId}}">
 
                         <div class="mb-3">
                             <label class="bk-label">Kund <span class="text-danger">*</span></label>
                             <label>
-                                <select name="customerId" class="form-select bk-input" required>
+                                <select class="form-select bk-input" name="customerId" required>
                                     <option value="">– Välj kund –</option>
                                     <option th:each="c : ${customers}"
-                                            th:value="${c.id}"
+                                            th:selected="${c.id == selectedCustomerId}"
                                             th:text="${c.fullName + (c.phone != null and !c.phone.isEmpty() ? ' · ' + c.phone : '')}"
-                                            th:selected="${c.id == selectedCustomerId}"></option>
+                                            th:value="${c.id}"></option>
                                 </select>
                             </label>
                         </div>
@@ -38,12 +38,12 @@
                         <div class="mb-3">
                             <label class="bk-label">Rum <span class="text-danger">*</span></label>
                             <label>
-                                <select name="roomId" class="form-select bk-input" required>
+                                <select class="form-select bk-input" name="roomId" required>
                                     <option value="">– Välj rum –</option>
                                     <option th:each="r : ${rooms}"
-                                            th:value="${r.id}"
+                                            th:selected="${r.id == selectedRoomId}"
                                             th:text="${'Rum ' + r.roomNumber + ' – ' + r.typeDescription + ' – ' + #numbers.formatDecimal(r.pricePerNight,1,'COMMA',0,'POINT') + ' kr/natt'}"
-                                            th:selected="${r.id == selectedRoomId}"></option>
+                                            th:value="${r.id}"></option>
                                 </select>
                             </label>
                         </div>
@@ -52,15 +52,15 @@
                             <div class="col-6">
                                 <label class="bk-label">Incheckning <span class="text-danger">*</span></label>
                                 <label>
-                                    <input type="date" name="checkIn" class="form-control bk-input"
-                                           th:value="${selectedCheckIn}" required>
+                                    <input class="form-control bk-input" name="checkIn" required
+                                           th:value="${selectedCheckIn}" type="date">
                                 </label>
                             </div>
                             <div class="col-6">
                                 <label class="bk-label">Utcheckning <span class="text-danger">*</span></label>
                                 <label>
-                                    <input type="date" name="checkOut" class="form-control bk-input"
-                                           th:value="${selectedCheckOut}" required>
+                                    <input class="form-control bk-input" name="checkOut" required
+                                           th:value="${selectedCheckOut}" type="date">
                                 </label>
                             </div>
                         </div>
@@ -68,18 +68,18 @@
                         <div class="mb-4">
                             <label class="bk-label">Antal gäster <span class="text-danger">*</span></label>
                             <label>
-                                <select name="numberOfGuests" class="form-select bk-input" required>
+                                <select class="form-select bk-input" name="numberOfGuests" required>
                                     <option th:each="n : ${#numbers.sequence(1,4)}"
-                                            th:value="${n}"
+                                            th:selected="${n == selectedGuests}"
                                             th:text="${n + (n == 1 ? ' gäst' : ' gäster')}"
-                                            th:selected="${n == selectedGuests}"></option>
+                                            th:value="${n}"></option>
                                 </select>
                             </label>
                         </div>
 
                         <div class="d-flex gap-2">
-                            <button type="submit" class="btn btn-bk-yellow px-4">Spara bokning</button>
-                            <a th:href="@{/bookings}" class="btn btn-outline-secondary">Avbryt</a>
+                            <button class="btn btn-bk-yellow px-4" type="submit">Spara bokning</button>
+                            <a class="btn btn-outline-secondary" th:href="@{/bookings}">Avbryt</a>
                         </div>
                     </form>
                 </div>

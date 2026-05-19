@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="sv">
+<html lang="sv" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/layout :: head('Kunder')}"><title>Pensionat</title></head>
 <body>
 <nav th:replace="~{fragments/layout :: navbar}"></nav>
@@ -7,54 +7,55 @@
 <div class="bk-page-bar">
     <div class="container d-flex justify-content-between align-items-center">
         <h2>Kunder</h2>
-        <a th:href="@{/customers/new}" class="btn btn-bk-yellow">+ Ny kund</a>
+        <a class="btn btn-bk-yellow" th:href="@{/customers/new}">+ Ny kund</a>
     </div>
 </div>
 
 <main class="container pb-5">
     <div th:replace="~{fragments/layout :: alerts}"></div>
 
-    <div th:if="${customers.isEmpty()}" class="bk-card p-4 text-center text-muted">
-        Inga kunder registrerade ännu. <a th:href="@{/customers/new}" class="text-decoration-none" style="color:var(--bk-blue)">Lägg till en kund</a>.
+    <div class="bk-card p-4 text-center text-muted" th:if="${customers.isEmpty()}">
+        Inga kunder registrerade ännu. <a class="text-decoration-none" style="color:var(--bk-blue)"
+                                          th:href="@{/customers/new}">Lägg till en kund</a>.
     </div>
 
-    <div th:unless="${customers.isEmpty()}" class="bk-card">
+    <div class="bk-card" th:unless="${customers.isEmpty()}">
         <table class="table bk-table mb-0">
             <thead>
-                <tr>
-                    <th>Namn</th>
-                    <th>E-post</th>
-                    <th>Telefon</th>
-                    <th>Adress</th>
-                    <th class="text-center">Bokningar</th>
-                    <th class="text-end">Åtgärder</th>
-                </tr>
+            <tr>
+                <th>Namn</th>
+                <th>E-post</th>
+                <th>Telefon</th>
+                <th>Adress</th>
+                <th class="text-center">Bokningar</th>
+                <th class="text-end">Åtgärder</th>
+            </tr>
             </thead>
             <tbody>
-                <tr th:each="c : ${customers}">
-                    <td class="fw-semibold" th:text="${c.fullName}"></td>
-                    <td th:text="${c.email}"></td>
-                    <td th:text="${c.phone}"></td>
-                    <td th:text="${c.address}"></td>
-                    <td class="text-center">
+            <tr th:each="c : ${customers}">
+                <td class="fw-semibold" th:text="${c.fullName}"></td>
+                <td th:text="${c.email}"></td>
+                <td th:text="${c.phone}"></td>
+                <td th:text="${c.address}"></td>
+                <td class="text-center">
                         <span class="badge rounded-pill"
                               th:style="${c.bookingCount == 0} ? 'background:#d4edda;color:#155724' : 'background:#cce5ff;color:#004085'"
                               th:text="${c.bookingCount}"></span>
-                    </td>
-                    <td class="text-end">
-                        <a th:href="@{/customers/{id}/edit(id=${c.id})}"
-                           class="btn btn-sm btn-bk me-1">Redigera</a>
-                        <form th:action="@{/customers/{id}/delete(id=${c.id})}"
-                              method="post" class="d-inline"
-                              onsubmit="return confirm('Ta bort kunden?');">
-                            <button type="submit" class="btn btn-sm btn-outline-danger"
-                                    th:disabled="${c.bookingCount > 0}"
-                                    th:title="${c.bookingCount > 0} ? 'Kunden har aktiva bokningar'">
-                                Ta bort
-                            </button>
-                        </form>
-                    </td>
-                </tr>
+                </td>
+                <td class="text-end">
+                    <a class="btn btn-sm btn-bk me-1"
+                       th:href="@{/customers/{id}/edit(id=${c.id})}">Redigera</a>
+                    <form class="d-inline"
+                          method="post" onsubmit="return confirm('Ta bort kunden?');"
+                          th:action="@{/customers/{id}/delete(id=${c.id})}">
+                        <button class="btn btn-sm btn-outline-danger" th:disabled="${c.bookingCount > 0}"
+                                th:title="${c.bookingCount > 0} ? 'Kunden har aktiva bokningar'"
+                                type="submit">
+                            Ta bort
+                        </button>
+                    </form>
+                </td>
+            </tr>
             </tbody>
         </table>
     </div>

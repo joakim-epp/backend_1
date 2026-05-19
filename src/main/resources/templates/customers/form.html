@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="sv">
+<html lang="sv" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/layout :: head(${pageTitle})}"><title>Pensionat</title></head>
 <body>
 <nav th:replace="~{fragments/layout :: navbar}"></nav>
@@ -16,26 +16,26 @@
             <div class="bk-card">
                 <div class="bk-card-header" th:text="${pageTitle}">Kund</div>
                 <div class="p-4">
-                    <form th:object="${customer}"
+                    <form method="post"
                           th:action="@{${customer.id == null ? '/customers' : '/customers/' + customer.id}}"
-                          method="post">
+                          th:object="${customer}">
 
                         <div class="row g-3 mb-3">
                             <div class="col-6">
                                 <label class="bk-label">Förnamn <span class="text-danger">*</span></label>
                                 <label>
-                                    <input type="text" th:field="*{firstName}" class="form-control bk-input"
-                                           th:classappend="${#fields.hasErrors('firstName')} ? 'is-invalid'"
-                                           placeholder="Anna">
+                                    <input class="form-control bk-input" placeholder="Anna" th:classappend="${#fields.hasErrors('firstName')} ? 'is-invalid'"
+                                           th:field="*{firstName}"
+                                           type="text">
                                 </label>
                                 <div class="invalid-feedback" th:errors="*{firstName}"></div>
                             </div>
                             <div class="col-6">
                                 <label class="bk-label">Efternamn <span class="text-danger">*</span></label>
                                 <label>
-                                    <input type="text" th:field="*{lastName}" class="form-control bk-input"
-                                           th:classappend="${#fields.hasErrors('lastName')} ? 'is-invalid'"
-                                           placeholder="Svensson">
+                                    <input class="form-control bk-input" placeholder="Svensson" th:classappend="${#fields.hasErrors('lastName')} ? 'is-invalid'"
+                                           th:field="*{lastName}"
+                                           type="text">
                                 </label>
                                 <div class="invalid-feedback" th:errors="*{lastName}"></div>
                             </div>
@@ -44,30 +44,30 @@
                         <div class="mb-3">
                             <label class="bk-label">E-post</label>
                             <label>
-                                <input type="email" th:field="*{email}" class="form-control bk-input"
-                                       placeholder="anna@exempel.se">
+                                <input class="form-control bk-input" placeholder="anna@exempel.se" th:field="*{email}"
+                                       type="email">
                             </label>
                         </div>
 
                         <div class="mb-3">
                             <label class="bk-label">Telefon</label>
                             <label>
-                                <input type="text" th:field="*{phone}" class="form-control bk-input"
-                                       placeholder="070-123 45 67">
+                                <input class="form-control bk-input" placeholder="070-123 45 67" th:field="*{phone}"
+                                       type="text">
                             </label>
                         </div>
 
                         <div class="mb-4">
                             <label class="bk-label">Adress</label>
                             <label>
-                                <input type="text" th:field="*{address}" class="form-control bk-input"
-                                       placeholder="Storgatan 1, Stockholm">
+                                <input class="form-control bk-input" placeholder="Storgatan 1, Stockholm" th:field="*{address}"
+                                       type="text">
                             </label>
                         </div>
 
                         <div class="d-flex gap-2">
-                            <button type="submit" class="btn btn-bk px-4">Spara</button>
-                            <a th:href="@{/customers}" class="btn btn-outline-secondary">Avbryt</a>
+                            <button class="btn btn-bk px-4" type="submit">Spara</button>
+                            <a class="btn btn-outline-secondary" th:href="@{/customers}">Avbryt</a>
                         </div>
                     </form>
                 </div>

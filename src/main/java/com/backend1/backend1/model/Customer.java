@@ -25,5 +25,7 @@ public class Customer {
     @OneToMany(mappedBy = "customer", fetch = FetchType.LAZY)
     private List<Booking> bookings = new ArrayList<>();
 
-    public String getFullName() { return firstName + " " + lastName; }
+    public String getFullName() {
+        return firstName + " " + lastName;
+    }
 }

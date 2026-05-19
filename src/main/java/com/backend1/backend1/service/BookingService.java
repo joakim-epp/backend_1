@@ -43,7 +43,7 @@ public class BookingService {
         if (room.getCapacity() < numberOfGuests) {
             int capacity = room.getCapacity();
             throw new IllegalArgumentException("Rummet har plats för " + capacity
-                    + (capacity == 1 ? " person" : " personer") +", inte " + numberOfGuests);
+                    + (capacity == 1 ? " person" : " personer") + ", inte " + numberOfGuests);
         }
         if (bookingRepository.countOverlap(roomId, checkIn, checkOut, bookingId) > 0) {
             throw new IllegalArgumentException("Rummet är redan bokat för de valda datumen");

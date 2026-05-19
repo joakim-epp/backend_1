@@ -15,23 +15,22 @@ public class Room {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(nullable = false, unique = true)
     private String roomNumber;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private RoomType type;
 
+    @Column(nullable = false)
     private int extraBeds = 0;
+
+    @Column(nullable = false)
     private BigDecimal pricePerNight;
 
     public int getCapacity() {
         if (type == RoomType.SINGLE) return 1;
         return 2 + extraBeds;
-    }
-
-    public String getTypeDescription() {
-        if (type == RoomType.SINGLE) return "Enkelrum (1 person)";
-        String extra = extraBeds == 0 ? "inga extrasängar"
-                     : extraBeds == 1 ? "1 extrasäng" : "2 extrasängar";
-        return "Dubbelrum, " + extra + " (max " + getCapacity() + " pers.)";
     }
 }
