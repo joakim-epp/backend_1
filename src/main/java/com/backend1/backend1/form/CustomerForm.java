@@ -12,5 +12,7 @@ public class CustomerForm {
     private String address;
     private long bookingCount;
 
-    public String getFullName() { return firstName + " " + lastName; }
+    public String getFullName() {
+        return firstName + " " + lastName;
+    }
 }

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="sv">
+<html lang="sv" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/layout :: head(${pageTitle})}"><title>Pensionat</title></head>
 <body>
 <nav th:replace="~{fragments/layout :: navbar}"></nav>
@@ -16,16 +16,16 @@
             <div class="bk-card">
                 <div class="bk-card-header" th:text="${pageTitle}">Rum</div>
                 <div class="p-4">
-                    <form th:object="${room}"
+                    <form method="post"
                           th:action="@{${room.id == null ? '/rooms' : '/rooms/' + room.id}}"
-                          method="post">
+                          th:object="${room}">
 
                         <div class="mb-3">
                             <label class="bk-label">Rumsnummer <span class="text-danger">*</span></label>
                             <label>
-                                <input type="text" th:field="*{roomNumber}" class="form-control bk-input"
-                                       th:classappend="${#fields.hasErrors('roomNumber')} ? 'is-invalid'"
-                                       placeholder="t.ex. 101">
+                                <input class="form-control bk-input" placeholder="t.ex. 101" th:classappend="${#fields.hasErrors('roomNumber')} ? 'is-invalid'"
+                                       th:field="*{roomNumber}"
+                                       type="text">
                             </label>
                             <div class="invalid-feedback" th:errors="*{roomNumber}"></div>
                         </div>
@@ -33,13 +33,13 @@
                         <div class="mb-3">
                             <label class="bk-label">Rumstyp <span class="text-danger">*</span></label>
                             <label>
-                                <select th:field="*{type}" class="form-select bk-input"
+                                <select class="form-select bk-input" onchange="toggleExtraBeds(this.value)"
                                         th:classappend="${#fields.hasErrors('type')} ? 'is-invalid'"
-                                        onchange="toggleExtraBeds(this.value)">
+                                        th:field="*{type}">
                                     <option value="">– Välj typ –</option>
                                     <option th:each="t : ${roomTypes}"
-                                            th:value="${t.name()}"
-                                            th:text="${t.displayName}"></option>
+                                            th:text="${t.displayName}"
+                                            th:value="${t.name()}"></option>
                                 </select>
                             </label>
                             <div class="invalid-feedback" th:errors="*{type}"></div>
@@ -48,7 +48,7 @@
                         <div class="mb-3" id="extraBedsGroup">
                             <label class="bk-label">Extrasängar <span class="text-muted fw-normal">(0–2, ej tillämpligt för enkelrum)</span></label>
                             <label>
-                                <select th:field="*{extraBeds}" class="form-select bk-input">
+                                <select class="form-select bk-input" th:field="*{extraBeds}">
                                     <option value="0">0 – inga extrasängar</option>
                                     <option value="1">1 extrasäng</option>
                                     <option value="2">2 extrasängar</option>
@@ -60,9 +60,9 @@
                             <label class="bk-label">Pris per natt (kr) <span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <label>
-                                    <input type="number" th:field="*{pricePerNight}" class="form-control bk-input"
-                                           th:classappend="${#fields.hasErrors('pricePerNight')} ? 'is-invalid'"
-                                           step="1" min="1" placeholder="800">
+                                    <input class="form-control bk-input" min="1" placeholder="800"
+                                           step="1"
+                                           th:classappend="${#fields.hasErrors('pricePerNight')} ? 'is-invalid'" th:field="*{pricePerNight}" type="number">
                                 </label>
                                 <span class="input-group-text">kr</span>
                                 <div class="invalid-feedback" th:errors="*{pricePerNight}"></div>
@@ -70,8 +70,8 @@
                         </div>
 
                         <div class="d-flex gap-2">
-                            <button type="submit" class="btn btn-bk px-4">Spara</button>
-                            <a th:href="@{/rooms}" class="btn btn-outline-secondary">Avbryt</a>
+                            <button class="btn btn-bk px-4" type="submit">Spara</button>
+                            <a class="btn btn-outline-secondary" th:href="@{/rooms}">Avbryt</a>
                         </div>
                     </form>
                 </div>
@@ -91,8 +91,12 @@
             g.style.display = '';
         }
     }
+
     const sel = document.querySelector('[name="type"]');
-    if (sel) { toggleExtraBeds(sel.value); sel.addEventListener('change', e => toggleExtraBeds(e.target.value)); }
+    if (sel) {
+        toggleExtraBeds(sel.value);
+        sel.addEventListener('change', e => toggleExtraBeds(e.target.value));
+    }
 </script>
 </body>
 </html>

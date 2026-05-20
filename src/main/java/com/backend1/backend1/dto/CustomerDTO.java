@@ -11,6 +11,4 @@ public class CustomerDTO {
     private String phone;
     private String address;
     private long bookingCount;
-
-    public String getFullName() { return firstName + " " + lastName; }
 }

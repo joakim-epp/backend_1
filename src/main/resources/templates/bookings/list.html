@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="sv">
+<html lang="sv" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/layout :: head('Bokningar')}"><title>Pensionat</title></head>
 <body>
 <nav th:replace="~{fragments/layout :: navbar}"></nav>
@@ -7,57 +7,58 @@
 <div class="bk-page-bar">
     <div class="container d-flex justify-content-between align-items-center">
         <h2>Bokningar</h2>
-        <a th:href="@{/bookings/new}" class="btn btn-bk-yellow">+ Ny bokning</a>
+        <a class="btn btn-bk-yellow" th:href="@{/bookings/new}">+ Ny bokning</a>
     </div>
 </div>
 
 <main class="container pb-5">
     <div th:replace="~{fragments/layout :: alerts}"></div>
 
-    <div th:if="${bookings.isEmpty()}" class="bk-card p-4 text-center text-muted">
-        Inga bokningar registrerade. <a th:href="@{/bookings/search}" class="text-decoration-none" style="color:var(--bk-blue)">Sök lediga rum</a> för att skapa en bokning.
+    <div class="bk-card p-4 text-center text-muted" th:if="${bookings.isEmpty()}">
+        Inga bokningar registrerade. <a class="text-decoration-none" style="color:var(--bk-blue)"
+                                        th:href="@{/bookings/search}">Sök lediga rum</a> för att skapa en bokning.
     </div>
 
-    <div th:unless="${bookings.isEmpty()}" class="bk-card">
+    <div class="bk-card" th:unless="${bookings.isEmpty()}">
         <table class="table bk-table mb-0">
             <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Kund</th>
-                    <th>Rum</th>
-                    <th>Incheckning</th>
-                    <th>Utcheckning</th>
-                    <th class="text-center">Nätter</th>
-                    <th class="text-center">Gäster</th>
-                    <th class="text-end">Totalpris</th>
-                    <th class="text-end">Åtgärder</th>
-                </tr>
+            <tr>
+                <th>#</th>
+                <th>Kund</th>
+                <th>Rum</th>
+                <th>Incheckning</th>
+                <th>Utcheckning</th>
+                <th class="text-center">Nätter</th>
+                <th class="text-center">Gäster</th>
+                <th class="text-end">Totalpris</th>
+                <th class="text-end">Åtgärder</th>
+            </tr>
             </thead>
             <tbody>
             <!--/*@thymesVar id="b" type="com.backend1.backend1.form.BookingForm"*/-->
-                <tr th:each="b : ${bookings}">
-                    <td class="text-muted small" th:text="${b.id}"></td>
-                    <td class="fw-semibold" th:text="${b.customerFullName}"></td>
-                    <td>
-                        <span th:text="${b.roomNumber}"></span>
-                        <small class="text-muted" th:text="'(' + b.roomTypeDisplayName + ')'"></small>
-                    </td>
-                    <td th:text="${#temporals.format(b.checkIn,'yyyy-MM-dd')}"></td>
-                    <td th:text="${#temporals.format(b.checkOut,'yyyy-MM-dd')}"></td>
-                    <td class="text-center" th:text="${b.nights}"></td>
-                    <td class="text-center" th:text="${b.numberOfGuests}"></td>
-                    <td class="text-end fw-bold" style="color:var(--bk-dark)"
-                        th:text="${#numbers.formatDecimal(b.totalPrice,1,'COMMA',0,'POINT') + ' kr'}"></td>
-                    <td class="text-end">
-                        <a th:href="@{/bookings/{id}/edit(id=${b.id})}"
-                           class="btn btn-sm btn-bk me-1">Ändra</a>
-                        <form th:action="@{/bookings/{id}/delete(id=${b.id})}"
-                              method="post" class="d-inline"
-                              onsubmit="return confirm('Avboka denna bokning?');">
-                            <button type="submit" class="btn btn-sm btn-outline-danger">Avboka</button>
-                        </form>
-                    </td>
-                </tr>
+            <tr th:each="b : ${bookings}">
+                <td class="text-muted small" th:text="${b.id}"></td>
+                <td class="fw-semibold" th:text="${b.customerFullName}"></td>
+                <td>
+                    <span th:text="${b.roomNumber}"></span>
+                    <small class="text-muted" th:text="'(' + b.roomTypeDisplayName + ')'"></small>
+                </td>
+                <td th:text="${#temporals.format(b.checkIn,'yyyy-MM-dd')}"></td>
+                <td th:text="${#temporals.format(b.checkOut,'yyyy-MM-dd')}"></td>
+                <td class="text-center" th:text="${b.nights}"></td>
+                <td class="text-center" th:text="${b.numberOfGuests}"></td>
+                <td class="text-end fw-bold" style="color:var(--bk-dark)"
+                    th:text="${#numbers.formatDecimal(b.totalPrice,1,'COMMA',0,'POINT') + ' kr'}"></td>
+                <td class="text-end">
+                    <a class="btn btn-sm btn-bk me-1"
+                       th:href="@{/bookings/{id}/edit(id=${b.id})}">Ändra</a>
+                    <form class="d-inline"
+                          method="post" onsubmit="return confirm('Avboka denna bokning?');"
+                          th:action="@{/bookings/{id}/delete(id=${b.id})}">
+                        <button class="btn btn-sm btn-outline-danger" type="submit">Avboka</button>
+                    </form>
+                </td>
+            </tr>
             </tbody>
         </table>
     </div>

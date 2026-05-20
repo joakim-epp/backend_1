@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="sv">
+<html lang="sv" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/layout :: head('Hem')}"><title>Pensionat</title></head>
 <body>
 <nav th:replace="~{fragments/layout :: navbar}"></nav>
@@ -10,24 +10,24 @@
         <h1>Hitta ditt perfekta rum</h1>
         <p class="mb-4">Boka enkelrum och dubbelrum med möjlighet till extrasängar</p>
 
-        <form th:action="@{/bookings/search}" method="get">
+        <form method="get" th:action="@{/bookings/search}">
             <div class="bk-search-strip">
                 <div>
                     <label>Incheckning</label>
                     <label>
-                        <input type="date" name="preCheckIn" class="form-control" style="min-width:150px;">
+                        <input class="form-control" name="preCheckIn" style="min-width:150px;" type="date">
                     </label>
                 </div>
                 <div>
                     <label>Utcheckning</label>
                     <label>
-                        <input type="date" name="preCheckOut" class="form-control" style="min-width:150px;">
+                        <input class="form-control" name="preCheckOut" style="min-width:150px;" type="date">
                     </label>
                 </div>
                 <div>
                     <label>Antal gäster</label>
                     <label>
-                        <select name="preGuests" class="form-select" style="min-width:120px;">
+                        <select class="form-select" name="preGuests" style="min-width:120px;">
                             <option value="1">1 gäst</option>
                             <option value="2">2 gäster</option>
                             <option value="3">3 gäster</option>
@@ -35,7 +35,7 @@
                         </select>
                     </label>
                 </div>
-                <button type="submit" class="btn-bk-search">Sök</button>
+                <button class="btn-bk-search" type="submit">Sök</button>
             </div>
         </form>
     </div>
@@ -48,21 +48,21 @@
             <div class="stat-card">
                 <div class="stat-num" th:text="${customerCount}">0</div>
                 <div class="text-muted fw-600 mb-3">Registrerade kunder</div>
-                <a th:href="@{/customers}" class="btn btn-bk w-100">Hantera kunder</a>
+                <a class="btn btn-bk w-100" th:href="@{/customers}">Hantera kunder</a>
             </div>
         </div>
         <div class="col-md-4">
             <div class="stat-card">
                 <div class="stat-num" th:text="${roomCount}">0</div>
                 <div class="text-muted mb-3">Tillgängliga rum</div>
-                <a th:href="@{/rooms}" class="btn btn-bk w-100">Hantera rum</a>
+                <a class="btn btn-bk w-100" th:href="@{/rooms}">Hantera rum</a>
             </div>
         </div>
         <div class="col-md-4">
             <div class="stat-card">
                 <div class="stat-num" th:text="${bookingCount}">0</div>
                 <div class="text-muted mb-3">Aktiva bokningar</div>
-                <a th:href="@{/bookings}" class="btn btn-bk w-100">Se bokningar</a>
+                <a class="btn btn-bk w-100" th:href="@{/bookings}">Se bokningar</a>
             </div>
         </div>
     </div>
