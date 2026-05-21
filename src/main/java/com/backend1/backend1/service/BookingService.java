@@ -1,6 +1,8 @@
 package com.backend1.backend1.service;
 
-import com.backend1.backend1.form.BookingForm;
+import com.backend1.backend1.dto.BookingDTO;
+import com.backend1.backend1.exception.BookingConflictException;
+import com.backend1.backend1.exception.BookingValidationException;
 import com.backend1.backend1.model.Booking;
 import com.backend1.backend1.model.Customer;
 import com.backend1.backend1.model.Room;
@@ -9,8 +11,11 @@ import com.backend1.backend1.repository.CustomerRepository;
 import com.backend1.backend1.repository.RoomRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Service
@@ -21,32 +26,38 @@ public class BookingService {
     private final CustomerRepository customerRepository;
     private final RoomRepository roomRepository;
 
-    public List<BookingForm> findAll() {
-        return bookingRepository.findAll().stream().map(this::toForm).toList();
+    @Transactional(readOnly = true)
+    public List<BookingDTO> findAll() {
+        return bookingRepository.findAll().stream().map(this::toDTO).toList();
     }
 
-    public BookingForm findById(Long id) {
+    @Transactional(readOnly = true)
+    public BookingDTO findById(Long id) {
         return bookingRepository.findById(id)
-                .map(this::toForm)
+                .map(this::toDTO)
                 .orElseThrow(() -> new IllegalArgumentException("Bokning med id " + id + " hittades inte"));
     }
 
+    @Transactional
     public void save(Long bookingId, Long customerId, Long roomId,
                      LocalDate checkIn, LocalDate checkOut, int numberOfGuests) {
         if (!checkOut.isAfter(checkIn)) {
-            throw new IllegalArgumentException("Utcheckningsdatum måste vara efter incheckningsdatum");
+            throw new BookingValidationException("Utcheckningsdatum måste vara efter incheckningsdatum");
         }
         Customer customer = customerRepository.findById(customerId)
-                .orElseThrow(() -> new IllegalArgumentException("Kund hittades inte"));
+                .orElseThrow(() -> new BookingValidationException("Kund hittades inte"));
         Room room = roomRepository.findById(roomId)
-                .orElseThrow(() -> new IllegalArgumentException("Rum hittades inte"));
+                .orElseThrow(() -> new BookingValidationException("Rum hittades inte"));
         if (room.getCapacity() < numberOfGuests) {
             int capacity = room.getCapacity();
-            throw new IllegalArgumentException("Rummet har plats för " + capacity
+            throw new BookingValidationException("Rummet har plats för " + capacity
                     + (capacity == 1 ? " person" : " personer") + ", inte " + numberOfGuests);
         }
-        if (bookingRepository.countOverlap(roomId, checkIn, checkOut, bookingId) > 0) {
-            throw new IllegalArgumentException("Rummet är redan bokat för de valda datumen");
+        long overlaps = bookingId == null
+                ? bookingRepository.countByRoomIdAndCheckInBeforeAndCheckOutAfter(roomId, checkOut, checkIn)
+                : bookingRepository.countByRoomIdAndCheckInBeforeAndCheckOutAfterAndIdNot(roomId, checkOut, checkIn, bookingId);
+        if (overlaps > 0) {
+            throw new BookingConflictException("Rummet är redan bokat för de valda datumen");
         }
         Booking b = new Booking();
         b.setId(bookingId);
@@ -58,27 +69,38 @@ public class BookingService {
         bookingRepository.save(b);
     }
 
+    @Transactional
     public void delete(Long id) {
         bookingRepository.deleteById(id);
     }
 
-    private BookingForm toForm(Booking b) {
-        BookingForm form = new BookingForm();
-        form.setId(b.getId());
+    public long count() {
+        return bookingRepository.count();
+    }
+
+    private BookingDTO toDTO(Booking b) {
+        BookingDTO dto = new BookingDTO();
+        dto.setId(b.getId());
         if (b.getCustomer() != null) {
-            form.setCustomerId(b.getCustomer().getId());
-            form.setCustomerFullName(b.getCustomer().getFullName());
+            dto.setCustomerId(b.getCustomer().getId());
+            dto.setCustomerFullName(b.getCustomer().getFullName());
         }
         if (b.getRoom() != null) {
-            form.setRoomId(b.getRoom().getId());
-            form.setRoomNumber(b.getRoom().getRoomNumber());
-            form.setRoomTypeDisplayName(b.getRoom().getType() != null
+            dto.setRoomId(b.getRoom().getId());
+            dto.setRoomNumber(b.getRoom().getRoomNumber());
+            dto.setRoomTypeDisplayName(b.getRoom().getType() != null
                     ? b.getRoom().getType().getDisplayName() : "");
-            form.setPricePerNight(b.getRoom().getPricePerNight());
+            dto.setPricePerNight(b.getRoom().getPricePerNight());
         }
-        form.setCheckIn(b.getCheckIn());
-        form.setCheckOut(b.getCheckOut());
-        form.setNumberOfGuests(b.getNumberOfGuests());
-        return form;
+        dto.setCheckIn(b.getCheckIn());
+        dto.setCheckOut(b.getCheckOut());
+        dto.setNumberOfGuests(b.getNumberOfGuests());
+        long nights = b.getCheckIn() != null && b.getCheckOut() != null
+                ? ChronoUnit.DAYS.between(b.getCheckIn(), b.getCheckOut()) : 0;
+        dto.setNights(nights);
+        dto.setTotalPrice(b.getRoom() != null && b.getRoom().getPricePerNight() != null
+                ? b.getRoom().getPricePerNight().multiply(BigDecimal.valueOf(nights))
+                : BigDecimal.ZERO);
+        return dto;
     }
 }

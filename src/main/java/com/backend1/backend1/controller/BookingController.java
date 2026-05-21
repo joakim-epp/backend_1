@@ -1,5 +1,7 @@
 package com.backend1.backend1.controller;
 
+import com.backend1.backend1.exception.BookingConflictException;
+import com.backend1.backend1.exception.BookingValidationException;
 import com.backend1.backend1.form.SearchForm;
 import com.backend1.backend1.service.BookingService;
 import com.backend1.backend1.service.CustomerService;
@@ -60,7 +62,7 @@ public class BookingController {
             bookingService.save(null, customerId, roomId, checkIn, checkOut, numberOfGuests);
             redirectAttributes.addFlashAttribute("successMessage", "Bokningen skapades.");
             return "redirect:/bookings";
-        } catch (IllegalArgumentException e) {
+        } catch (BookingValidationException | BookingConflictException e) {
             return bookingFormWithError(e.getMessage(), null, customerId, roomId, checkIn, checkOut, numberOfGuests, model);
         }
     }
@@ -94,7 +96,7 @@ public class BookingController {
             bookingService.save(id, customerId, roomId, checkIn, checkOut, numberOfGuests);
             redirectAttributes.addFlashAttribute("successMessage", "Bokningen uppdaterades.");
             return "redirect:/bookings";
-        } catch (IllegalArgumentException e) {
+        } catch (BookingValidationException | BookingConflictException e) {
             return bookingFormWithError(e.getMessage(), id, customerId, roomId, checkIn, checkOut, numberOfGuests, model);
         }
     }

@@ -1,5 +1,8 @@
 package com.backend1.backend1.model;
 
+import lombok.Getter;
+
+@Getter
 public enum RoomType {
     SINGLE("Enkelrum"),
     DOUBLE("Dubbelrum");
@@ -10,7 +13,4 @@ public enum RoomType {
         this.displayName = displayName;
     }
 
-    public String getDisplayName() {
-        return displayName;
-    }
 }

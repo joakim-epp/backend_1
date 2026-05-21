@@ -4,6 +4,7 @@ import com.backend1.backend1.dto.RoomDTO;
 import com.backend1.backend1.form.RoomForm;
 import com.backend1.backend1.model.Room;
 import com.backend1.backend1.model.RoomType;
+import com.backend1.backend1.repository.BookingRepository;
 import com.backend1.backend1.repository.RoomRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,25 +17,15 @@ import java.util.List;
 public class RoomService {
 
     private final RoomRepository roomRepository;
+    private final BookingRepository bookingRepository;
 
-    private static String buildTypeDescription(Room r) {
-        if (r.getType() == RoomType.SINGLE) return "Enkelrum (1 person)";
-        String extra = switch (r.getExtraBeds()) {
-            case 1 -> "1 extrasäng";
-            case 2 -> "2 extrasängar";
-            default -> "inga extrasängar";
-        };
-        return "Dubbelrum, " + extra + " (max " + r.getCapacity() + " pers.)";
+    public List<RoomDTO> findAll() {
+        return roomRepository.findAll().stream().map(this::toDTO).toList();
     }
 
-    public List<RoomForm> findAll() {
-        return roomRepository.findAll().stream().map(this::toDTO).map(this::toForm).toList();
-    }
-
-    public RoomForm findById(Long id) {
+    public RoomDTO findById(Long id) {
         return roomRepository.findById(id)
                 .map(this::toDTO)
-                .map(this::toForm)
                 .orElseThrow(() -> new IllegalArgumentException("Rum med id " + id + " hittades inte"));
     }
 
@@ -47,32 +38,40 @@ public class RoomService {
         roomRepository.deleteById(id);
     }
 
-    public List<RoomForm> findAvailableByDates(LocalDate checkIn, LocalDate checkOut) {
-        return roomRepository.findAvailableByDates(checkIn, checkOut).stream().map(this::toDTO).map(this::toForm).toList();
+    public long count() {
+        return roomRepository.count();
+    }
+
+    public List<RoomDTO> findAvailableByDates(LocalDate checkIn, LocalDate checkOut) {
+        List<Long> bookedIds = bookingRepository
+                .findByCheckInBeforeAndCheckOutAfter(checkOut, checkIn)
+                .stream().map(b -> b.getRoom().getId()).toList();
+        List<Room> rooms = bookedIds.isEmpty()
+                ? roomRepository.findAll()
+                : roomRepository.findByIdNotIn(bookedIds);
+        return rooms.stream().map(this::toDTO).toList();
     }
 
     private RoomDTO toDTO(Room r) {
-        return new RoomDTO(
-                r.getId(),
-                r.getRoomNumber(),
-                r.getType(),
-                r.getExtraBeds(),
-                r.getPricePerNight(),
-                r.getCapacity(),
-                buildTypeDescription(r)
-        );
+        RoomDTO dto = new RoomDTO();
+        dto.setId(r.getId());
+        dto.setRoomNumber(r.getRoomNumber());
+        dto.setType(r.getType());
+        dto.setExtraBeds(r.getExtraBeds());
+        dto.setPricePerNight(r.getPricePerNight());
+        dto.setCapacity(r.getCapacity());
+        dto.setTypeDescription(buildTypeDescription(r));
+        return dto;
     }
 
-    private RoomForm toForm(RoomDTO dto) {
-        RoomForm form = new RoomForm();
-        form.setId(dto.id());
-        form.setRoomNumber(dto.roomNumber());
-        form.setType(dto.type());
-        form.setExtraBeds(dto.extraBeds());
-        form.setPricePerNight(dto.pricePerNight());
-        form.setCapacity(dto.capacity());
-        form.setTypeDescription(dto.typeDescription());
-        return form;
+    private static String buildTypeDescription(Room r) {
+        if (r.getType() == RoomType.SINGLE) return "Enkelrum (1 person)";
+        String extra = switch (r.getExtraBeds()) {
+            case 1 -> "1 extrasäng";
+            case 2 -> "2 extrasängar";
+            default -> "inga extrasängar";
+        };
+        return "Dubbelrum, " + extra + " (max " + r.getCapacity() + " pers.)";
     }
 
     private Room toEntity(RoomForm form) {

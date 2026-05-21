@@ -1,5 +1,6 @@
 package com.backend1.backend1.controller;
 
+import com.backend1.backend1.dto.RoomDTO;
 import com.backend1.backend1.form.RoomForm;
 import com.backend1.backend1.model.RoomType;
 import com.backend1.backend1.service.RoomService;
@@ -24,7 +25,7 @@ public class RoomController {
 
     @GetMapping("/new")
     public String showCreateForm(Model model) {
-        model.addAttribute("room", new RoomForm());
+        model.addAttribute("room", new RoomDTO());
         model.addAttribute("roomTypes", RoomType.values());
         model.addAttribute("pageTitle", "Nytt rum");
         return "rooms/form";

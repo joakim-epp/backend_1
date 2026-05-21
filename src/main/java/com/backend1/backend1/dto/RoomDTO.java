@@ -1,16 +1,17 @@
 package com.backend1.backend1.dto;
 
 import com.backend1.backend1.model.RoomType;
+import lombok.Data;
 
 import java.math.BigDecimal;
 
-public record RoomDTO(
-        Long id,
-        String roomNumber,
-        RoomType type,
-        int extraBeds,
-        BigDecimal pricePerNight,
-        int capacity,
-        String typeDescription
-) {
+@Data
+public class RoomDTO {
+    private Long id;
+    private String roomNumber;
+    private RoomType type;
+    private int extraBeds;
+    private BigDecimal pricePerNight;
+    private int capacity;
+    private String typeDescription;
 }

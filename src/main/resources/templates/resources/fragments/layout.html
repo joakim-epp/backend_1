@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="sv">
+
+<!--/*
+  Användning på annan sida:
+  <div th:replace="~{resources/fragments/layout :: navbar}"></div>
+  <div th:replace="~{resources/fragments/layout :: flash}"></div>
+*/-->
+
+<body>
+
+<!-- ===== NAVBAR ===== -->
+<nav th:fragment="navbar" class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+        <a class="navbar-brand" th:href="@{/}">Pensionat</a>
+
+        <button class="navbar-toggler" type="button"
+                data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/kunder}"
+                       th:classappend="${#request.requestURI.contains('/kunder')} ? 'active'">
+                        Kunder
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/rum}"
+                       th:classappend="${#request.requestURI.contains('/rum')} ? 'active'">
+                        Rum
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/bokningar}"
+                       th:classappend="${#request.requestURI.contains('/bokningar')} ? 'active'">
+                        Bokningar
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/sok}"
+                       th:classappend="${#request.requestURI.contains('/sok')} ? 'active'">
+                        Sök lediga rum
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- ===== FLASH-MEDDELANDEN ===== -->
+<div th:fragment="flash" class="container mt-3">
+    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <span th:text="${successMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <span th:text="${errorMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+</div>
+
+<!-- ===== SIDFOT ===== -->
+<footer th:fragment="footer" class="footer mt-auto py-3 bg-light border-top">
+    <div class="container text-center text-muted">
+        <small>Superpensionatet &copy; 2024</small>
+    </div>
+</footer>
+
+</body>
+</html>

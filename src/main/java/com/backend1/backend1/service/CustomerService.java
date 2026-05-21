@@ -17,14 +17,13 @@ public class CustomerService {
     private final CustomerRepository customerRepository;
     private final BookingRepository bookingRepository;
 
-    public List<CustomerForm> findAll() {
-        return customerRepository.findAll().stream().map(this::toDTO).map(this::toForm).toList();
+    public List<CustomerDTO> findAll() {
+        return customerRepository.findAll().stream().map(this::toDTO).toList();
     }
 
-    public CustomerForm findById(Long id) {
+    public CustomerDTO findById(Long id) {
         return customerRepository.findById(id)
                 .map(this::toDTO)
-                .map(this::toForm)
                 .orElseThrow(() -> new IllegalArgumentException("Kund med id " + id + " hittades inte"));
     }
 
@@ -51,20 +50,9 @@ public class CustomerService {
         dto.setEmail(c.getEmail());
         dto.setPhone(c.getPhone());
         dto.setAddress(c.getAddress());
+        dto.setFullName(c.getFirstName() + " " + c.getLastName());
         dto.setBookingCount(bookingRepository.countByCustomerId(c.getId()));
         return dto;
-    }
-
-    private CustomerForm toForm(CustomerDTO dto) {
-        CustomerForm form = new CustomerForm();
-        form.setId(dto.getId());
-        form.setFirstName(dto.getFirstName());
-        form.setLastName(dto.getLastName());
-        form.setEmail(dto.getEmail());
-        form.setPhone(dto.getPhone());
-        form.setAddress(dto.getAddress());
-        form.setBookingCount(dto.getBookingCount());
-        return form;
     }
 
     private Customer toEntity(CustomerForm form) {

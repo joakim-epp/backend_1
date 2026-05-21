@@ -1,5 +1,6 @@
 package com.backend1.backend1.controller;
 
+import com.backend1.backend1.dto.CustomerDTO;
 import com.backend1.backend1.form.CustomerForm;
 import com.backend1.backend1.service.CustomerService;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +24,7 @@ public class CustomerController {
 
     @GetMapping("/new")
     public String showCreateForm(Model model) {
-        model.addAttribute("customer", new CustomerForm());
+        model.addAttribute("customer", new CustomerDTO());
         model.addAttribute("pageTitle", "Ny kund");
         return "customers/form";
     }
